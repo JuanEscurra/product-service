@@ -3,7 +3,7 @@ package com.bank_example.product_service.application.services;
 
 import com.bank_example.product_service.application.ports.out.http.UserFinderPort;
 import com.bank_example.product_service.application.ports.out.persistence.AccountCreatorPort;
-import com.bank_example.product_service.application.ports.out.persistence.AccountUtils;
+import com.bank_example.product_service.application.ports.out.persistence.AccountUtilsPort;
 import com.bank_example.product_service.domain.generate.model.*;
 import com.bank_example.product_service.application.ports.out.http.request.User;
 import com.bank_example.product_service.application.ports.out.http.request.UserType;
@@ -11,6 +11,7 @@ import com.bank_example.product_service.domain.usecases.CreateCurrentAccountUseC
 import com.bank_example.product_service.domain.usecases.CreateFixedTermDepositUseCase;
 import com.bank_example.product_service.domain.usecases.CreateSavingAccountUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultProductService implements
         CreateSavingAccountUseCase,
         CreateCurrentAccountUseCase,
@@ -34,11 +36,12 @@ public class DefaultProductService implements
 
     private final UserFinderPort userFinder;
     private final AccountCreatorPort accountCreatorPort;
-    private final AccountUtils accountUtils;
+    private final AccountUtilsPort accountUtils;
 
 
     @Override
     public Mono<AccountResponse> createCurrentAccount(CreateCurrentAccountRequest request) {
+
         return Mono.zip(
                 this.userFinder.findById(request.getClientId()),
                 this.accountUtils.getCountCurrentAccounts(request.getClientId())
@@ -51,7 +54,9 @@ public class DefaultProductService implements
             if( !user.getUserType().equals(UserType.ENTERPRISE) && countCurrentAccounts >= maxNCurrentAccounts ) return Mono.error(new Exception("Count current accounts exceeded"));
 
             return this.accountCreatorPort.createCurrentAccount( user.getId() );
-        });
+        })
+                .doOnSuccess(account -> log.info("The current account has been created successfully: {}", account.getAccountNumber()))
+                .doOnError(e -> log.error("An error occurred while creating the current account: {}", e.getMessage()));
     }
 
     @Override
@@ -68,7 +73,9 @@ public class DefaultProductService implements
             if( countFixedTermDeposits >= maxNFixedTermDeposits ) return Mono.error(new Exception("Count fixed term deposits exceeded"));
 
             return this.accountCreatorPort.createFixedTermDeposit(request);
-        });
+        })
+                .doOnSuccess(account -> log.info("The fixed term deposit has been created successfully: {}", account.getAccountNumber()))
+                .doOnError(e -> log.error("An error occurred while creating the fixed term deposit: {}", e.getMessage()));
     }
 
     @Override
@@ -83,11 +90,13 @@ public class DefaultProductService implements
             System.out.println("countSavingAccounts = " + countSavingAccounts);
 
             if( !user.getUserType().equals(UserType.PERSONAL) ) return Mono.error(new Exception("Enabled for personal user"));
-            if( !user.getActive() ) return Mono.error(new Exception("User is inactive"));
+            if( user.getActive() == null || !user.getActive() ) return Mono.error(new Exception("User is inactive"));
             if( countSavingAccounts >= maxNSavingAccounts ) return Mono.error(new Exception("Count saving accounts exceeded"));
 
             return this.accountCreatorPort.createSavingAccount( user.getId() );
-        });
+        })
+                .doOnSuccess(account -> log.info("The saving account has been created successfully: {}", account.getAccountNumber()))
+                .doOnError(e -> log.error("An error occurred while creating the account saving: {}", e.getMessage()));
 
     }
 
