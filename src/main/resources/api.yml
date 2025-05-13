@@ -1,0 +1,136 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Banking Products API
+servers:
+  - url: http://localhost:8585
+paths:
+  /saving-accounts:
+    post:
+      summary: Crea una cuenta de ahorro
+      operationId: createSavingAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSavingAccountRequest"
+      responses:
+        '201':
+          description: Cuenta de ahorro creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+  /current-accounts:
+    post:
+      summary: Crea una cuenta de corriente
+      operationId: createCurrentAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCurrentAccountRequest"
+      responses:
+        '201':
+          description: Cuenta de corriente creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+  /fixed-term-deposits:
+    post:
+      summary: Crea plazo fijo
+      operationId: createFixedTermDeposit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFixedTermDepositRequest"
+      responses:
+        '201':
+          description: Plazo fijo creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+components:
+  schemas:
+    CreateSavingAccountRequest:
+      type: object
+      required:
+        - clientId
+      properties:
+        clientId:
+          type: string
+    CreateCurrentAccountRequest:
+      type: object
+      required:
+        - clientId
+      properties:
+        clientId:
+          type: string
+    CreateFixedTermDepositRequest:
+      type: object
+      required:
+        - clientId
+        - balance
+        - maturityDate
+      properties:
+        clientId:
+          type: string
+        balance:
+          type: number
+          format: double
+          multipleOf: 0.01
+        maturityDate:
+          type: string
+          format: date
+    AccountResponse:
+      type: object
+      required:
+        - id
+        - accountNumber
+        - clientId
+        - balance
+        - openedDate
+        - isActive
+        - type
+        - maintenceFee
+        - maturityDate
+        - interestRate
+        - currentWithdrawalCount
+      properties:
+        id:
+          type: string
+        accountNumber:
+          type: string
+        clientId:
+          type: string
+        balance:
+          type: number
+          format: double
+          multipleOf: 0.01
+        openedDate:
+          type: string
+          format: date
+        active:
+          type: boolean
+        type:
+          type: string
+          enum: [ SAVING_ACCOUNT, CURRENT_ACCOUNT, FIXED_TERM_DEPOSIT ]
+        maintenceFee:
+          type: number
+          format: double
+          multipleOf: 0.01
+        maturityDate:
+          type: string
+          format: date
+        interestRate:
+          type: number
+          format: double
+          multipleOf: 0.01
+        currentWithdrawalCount:
+          type: integer
