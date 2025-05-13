@@ -1,7 +1,9 @@
 package com.bank_example.product_service.infraestructure.in.http;
 
-import com.bank_example.product_service.application.services.DefaultProductService;
 import com.bank_example.product_service.domain.generate.model.*;
+import com.bank_example.product_service.domain.usecases.CreateCurrentAccountUseCase;
+import com.bank_example.product_service.domain.usecases.CreateFixedTermDepositUseCase;
+import com.bank_example.product_service.domain.usecases.CreateSavingAccountUseCase;
 import com.bank_example.product_service.infraestructure.in.api.CurrentAccountsApiDelegate;
 import com.bank_example.product_service.infraestructure.in.api.FixedTermDepositsApiDelegate;
 import com.bank_example.product_service.infraestructure.in.api.SavingAccountsApiDelegate;
@@ -23,7 +25,9 @@ public class ProductApi implements
         CurrentAccountsApiDelegate,
         FixedTermDepositsApiDelegate {
 
-    private final DefaultProductService productService;
+    private final CreateSavingAccountUseCase createSavingAccountUseCase;
+    private final CreateCurrentAccountUseCase createCurrentAccountUseCase;
+    private final CreateFixedTermDepositUseCase createFixedTermDepositUseCase;
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
@@ -34,7 +38,7 @@ public class ProductApi implements
     public Mono<ResponseEntity<AccountResponse>> createSavingAccount(Mono<CreateSavingAccountRequest> createSavingAccountRequest, ServerWebExchange exchange) {
 
         return createSavingAccountRequest
-                .flatMap(this.productService::createSavingAccount)
+                .flatMap(this.createSavingAccountUseCase::createSavingAccount)
                 .map(savingAccount -> ResponseEntity.status(HttpStatus.CREATED).body(savingAccount));
     }
 
@@ -42,7 +46,7 @@ public class ProductApi implements
     public Mono<ResponseEntity<AccountResponse>> createCurrentAccount(Mono<CreateCurrentAccountRequest> createCurrentAccountRequest, ServerWebExchange exchange) {
 
         return createCurrentAccountRequest
-                .flatMap(this.productService::createCurrentAccount)
+                .flatMap(this.createCurrentAccountUseCase::createCurrentAccount)
                 .map(currentAccount -> ResponseEntity.status(HttpStatus.CREATED).body(currentAccount));
     }
 
@@ -50,7 +54,7 @@ public class ProductApi implements
     public Mono<ResponseEntity<AccountResponse>> createFixedTermDeposit(Mono<CreateFixedTermDepositRequest> createFixedTermDepositRequest, ServerWebExchange exchange) {
 
         return createFixedTermDepositRequest
-                .flatMap(this.productService::createFixedTermDeposit)
+                .flatMap(this.createFixedTermDepositUseCase::createFixedTermDeposit)
                 .map(fixedTermDeposit -> ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit));
     }
 }

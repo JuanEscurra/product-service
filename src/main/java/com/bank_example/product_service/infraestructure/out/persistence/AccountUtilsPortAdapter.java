@@ -1,13 +1,13 @@
 package com.bank_example.product_service.infraestructure.out.persistence;
 
-import com.bank_example.product_service.application.ports.out.persistence.AccountUtils;
+import com.bank_example.product_service.application.ports.out.persistence.AccountUtilsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-public class AccountUtilsAdapter implements AccountUtils {
+public class AccountUtilsPortAdapter implements AccountUtilsPort {
 
     private final SavingAccountRepository savingAccountRepository;
 
