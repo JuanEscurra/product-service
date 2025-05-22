@@ -1,10 +1,14 @@
 spring:
   application:
     name: product-service
-  data:
-    mongodb:
-      uri: mongodb://admin:123456789@localhost:27017/bd_products?authSource=admin
-
+  profiles:
+    default: default
+  cloud:
+    config:
+      uri: http://localhost:8888
+      fail-fast: true
+  config:
+    import: "configserver:"
 bank-example:
   business:
     rules:
