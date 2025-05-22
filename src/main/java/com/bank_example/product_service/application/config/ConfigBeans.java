@@ -12,7 +12,7 @@ public class ConfigBeans {
     @Bean
     public WebClient userWebClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8081/users")
+                .baseUrl("http://localhost:8081/clients")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

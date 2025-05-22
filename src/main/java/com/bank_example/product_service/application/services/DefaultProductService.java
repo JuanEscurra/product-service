@@ -1,12 +1,12 @@
 package com.bank_example.product_service.application.services;
 
 
-import com.bank_example.product_service.application.ports.out.http.UserFinderPort;
+import com.bank_example.product_service.application.ports.out.http.ClientFinderPort;
+import com.bank_example.product_service.application.ports.out.http.request.Client;
+import com.bank_example.product_service.application.ports.out.http.request.ClientType;
 import com.bank_example.product_service.application.ports.out.persistence.AccountCreatorPort;
 import com.bank_example.product_service.application.ports.out.persistence.AccountUtilsPort;
 import com.bank_example.product_service.domain.generate.model.*;
-import com.bank_example.product_service.application.ports.out.http.request.User;
-import com.bank_example.product_service.application.ports.out.http.request.UserType;
 import com.bank_example.product_service.domain.usecases.CreateCurrentAccountUseCase;
 import com.bank_example.product_service.domain.usecases.CreateFixedTermDepositUseCase;
 import com.bank_example.product_service.domain.usecases.CreateSavingAccountUseCase;
@@ -34,7 +34,7 @@ public class DefaultProductService implements
     @Value("${bank-example.business.rules.fixed-term-deposit.max}")
     private int maxNFixedTermDeposits;
 
-    private final UserFinderPort userFinder;
+    private final ClientFinderPort userFinder;
     private final AccountCreatorPort accountCreatorPort;
     private final AccountUtilsPort accountUtils;
 
@@ -46,14 +46,13 @@ public class DefaultProductService implements
                 this.userFinder.findById(request.getClientId()),
                 this.accountUtils.getCountCurrentAccounts(request.getClientId())
         ).flatMap(tuple -> {
-            User user = tuple.getT1();
+            Client client = tuple.getT1();
             Long countCurrentAccounts = tuple.getT2();
-            System.out.println("countCurrentAccounts = " + countCurrentAccounts);
 
-            if( !user.getActive() ) return Mono.error(new Exception("User is inactive"));
-            if( !user.getUserType().equals(UserType.ENTERPRISE) && countCurrentAccounts >= maxNCurrentAccounts ) return Mono.error(new Exception("Count current accounts exceeded"));
+            if( client.getActive() == null || !client.getActive() ) return Mono.error(new Exception("Client is inactive"));
+            if( !client.getClientType().equals(ClientType.COMPANY) && countCurrentAccounts >= maxNCurrentAccounts ) return Mono.error(new Exception("Count current accounts exceeded"));
 
-            return this.accountCreatorPort.createCurrentAccount( user.getId() );
+            return this.accountCreatorPort.createCurrentAccount( client.getId() );
         })
                 .doOnSuccess(account -> log.info("The current account has been created successfully: {}", account.getAccountNumber()))
                 .doOnError(e -> log.error("An error occurred while creating the current account: {}", e.getMessage()));
@@ -65,11 +64,11 @@ public class DefaultProductService implements
                 this.userFinder.findById(request.getClientId()),
                 this.accountUtils.getCountFixedTermDeposit(request.getClientId())
         ).flatMap(tuple -> {
-            User user = tuple.getT1();
+            Client client = tuple.getT1();
             Long countFixedTermDeposits = tuple.getT2();
 
-            if( !user.getUserType().equals(UserType.PERSONAL) ) return Mono.error(new Exception("Enabled for personal user"));
-            if( !user.getActive() ) return Mono.error(new Exception("User is inactive"));
+            if( client.getActive() == null || !client.getActive() ) return Mono.error(new Exception("Client is inactive"));
+            if( !client.getClientType().equals(ClientType.PERSONAL) ) return Mono.error(new Exception("Enabled for personal user"));
             if( countFixedTermDeposits >= maxNFixedTermDeposits ) return Mono.error(new Exception("Count fixed term deposits exceeded"));
 
             return this.accountCreatorPort.createFixedTermDeposit(request);
@@ -85,15 +84,14 @@ public class DefaultProductService implements
                 this.userFinder.findById(request.getClientId()),
                 this.accountUtils.getCountSavingAccounts(request.getClientId())
         ).flatMap(tuple -> {
-            User user = tuple.getT1();
+            Client client = tuple.getT1();
             Long countSavingAccounts = tuple.getT2();
-            System.out.println("countSavingAccounts = " + countSavingAccounts);
 
-            if( !user.getUserType().equals(UserType.PERSONAL) ) return Mono.error(new Exception("Enabled for personal user"));
-            if( user.getActive() == null || !user.getActive() ) return Mono.error(new Exception("User is inactive"));
+            if( client.getActive() == null || !client.getActive() ) return Mono.error(new Exception("Client is inactive"));
+            if( !client.getClientType().equals(ClientType.PERSONAL) ) return Mono.error(new Exception("Enabled for personal user"));
             if( countSavingAccounts >= maxNSavingAccounts ) return Mono.error(new Exception("Count saving accounts exceeded"));
 
-            return this.accountCreatorPort.createSavingAccount( user.getId() );
+            return this.accountCreatorPort.createSavingAccount( client.getId() );
         })
                 .doOnSuccess(account -> log.info("The saving account has been created successfully: {}", account.getAccountNumber()))
                 .doOnError(e -> log.error("An error occurred while creating the account saving: {}", e.getMessage()));
