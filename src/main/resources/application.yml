@@ -3,9 +3,7 @@ spring:
     name: product-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/bd_products
-      username: admin
-      password: 123456789
+      uri: mongodb://admin:123456789@localhost:27017/bd_products?authSource=admin
 
 bank-example:
   business:
@@ -19,3 +17,8 @@ bank-example:
       fixed-term-deposit:
         max: 1
         interest-rate: 2.50
+server:
+  port: 0
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
