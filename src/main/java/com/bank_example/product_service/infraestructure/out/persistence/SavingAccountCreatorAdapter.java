@@ -16,8 +16,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SavingAccountCreatorAdapter implements AccountCreatorPort {
 
-    private final SavingAccountRepository savingAccountRepository;
-    private final accountMapper accountMapper;
+    private final AccountRepository accountRepository;
+    private final AccountMapper accountMapper;
 
     @Value("${bank-example.business.rules.saving-accounts.maintenceFee}")
     private BigDecimal savingAccountMaintenanceFee;
@@ -36,7 +36,7 @@ public class SavingAccountCreatorAdapter implements AccountCreatorPort {
         account.setBalance(BigDecimal.ZERO);
         account.setMaintenceFee(savingAccountMaintenanceFee);
 
-        return this.savingAccountRepository.save(account)
+        return this.accountRepository.save(account)
                 .map(this.accountMapper::convertFrom);
     }
 
@@ -48,7 +48,7 @@ public class SavingAccountCreatorAdapter implements AccountCreatorPort {
         account.setBalance(BigDecimal.ZERO);
         account.setMaintenceFee(currentAccountMaintenanceFee);
 
-        return this.savingAccountRepository.save(account)
+        return this.accountRepository.save(account)
                 .map(this.accountMapper::convertFrom);
     }
 
@@ -63,7 +63,7 @@ public class SavingAccountCreatorAdapter implements AccountCreatorPort {
         account.setMaturityDate(request.getMaturityDate());
         account.setInterestRate(interestRate);
 
-        return this.savingAccountRepository.save(account)
+        return this.accountRepository.save(account)
                 .map(this.accountMapper::convertFrom);
     }
 

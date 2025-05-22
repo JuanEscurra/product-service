@@ -9,20 +9,20 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AccountUtilsPortAdapter implements AccountUtilsPort {
 
-    private final SavingAccountRepository savingAccountRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public Mono<Long> getCountSavingAccounts(String clientId) {
-        return this.savingAccountRepository.countSavingAccountByAccountTypeAndClientId(AccountType.SAVING_ACCOUNT, clientId);
+        return this.accountRepository.countSavingAccountByAccountTypeAndClientId(AccountType.SAVING_ACCOUNT, clientId);
     }
 
     @Override
     public Mono<Long> getCountFixedTermDeposit(String clientId) {
-        return this.savingAccountRepository.countSavingAccountByAccountTypeAndClientId(AccountType.FIXED_TERM_DEPOSIT, clientId);
+        return this.accountRepository.countSavingAccountByAccountTypeAndClientId(AccountType.FIXED_TERM_DEPOSIT, clientId);
     }
 
     @Override
     public Mono<Long> getCountCurrentAccounts(String clientId) {
-        return this.savingAccountRepository.countSavingAccountByAccountTypeAndClientId(AccountType.CURRENT_ACCOUNT, clientId);
+        return this.accountRepository.countSavingAccountByAccountTypeAndClientId(AccountType.CURRENT_ACCOUNT, clientId);
     }
 }

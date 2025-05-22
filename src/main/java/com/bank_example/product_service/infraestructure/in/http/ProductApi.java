@@ -4,8 +4,10 @@ import com.bank_example.product_service.domain.generate.model.*;
 import com.bank_example.product_service.domain.usecases.CreateCurrentAccountUseCase;
 import com.bank_example.product_service.domain.usecases.CreateFixedTermDepositUseCase;
 import com.bank_example.product_service.domain.usecases.CreateSavingAccountUseCase;
+import com.bank_example.product_service.domain.usecases.GetProductByIdUseCase;
 import com.bank_example.product_service.infraestructure.in.api.CurrentAccountsApiDelegate;
 import com.bank_example.product_service.infraestructure.in.api.FixedTermDepositsApiDelegate;
+import com.bank_example.product_service.infraestructure.in.api.ProductsApiDelegate;
 import com.bank_example.product_service.infraestructure.in.api.SavingAccountsApiDelegate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,11 +25,13 @@ import java.util.Optional;
 public class ProductApi implements
         SavingAccountsApiDelegate,
         CurrentAccountsApiDelegate,
-        FixedTermDepositsApiDelegate {
+        FixedTermDepositsApiDelegate,
+        ProductsApiDelegate {
 
     private final CreateSavingAccountUseCase createSavingAccountUseCase;
     private final CreateCurrentAccountUseCase createCurrentAccountUseCase;
     private final CreateFixedTermDepositUseCase createFixedTermDepositUseCase;
+    private final GetProductByIdUseCase getProductByIdUseCase;
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
@@ -56,5 +60,12 @@ public class ProductApi implements
         return createFixedTermDepositRequest
                 .flatMap(this.createFixedTermDepositUseCase::createFixedTermDeposit)
                 .map(fixedTermDeposit -> ResponseEntity.status(HttpStatus.CREATED).body(fixedTermDeposit));
+    }
+
+    @Override
+    public Mono<ResponseEntity<AccountResponse>> getProductById(String id, ServerWebExchange exchange) {
+        this.getProductByIdUseCase.getProductById(id)
+                .flatMap();
+        return ProductsApiDelegate.super.getProductById(id, exchange);
     }
 }

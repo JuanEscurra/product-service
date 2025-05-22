@@ -5,6 +5,26 @@ info:
 servers:
   - url: http://localhost:8585
 paths:
+  /products/{id}:
+    get:
+      summary: Obtener los datos de un producto por id
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del cliente
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        '404':
+          description: Producto no encontrado
   /saving-accounts:
     post:
       summary: Crea una cuenta de ahorro

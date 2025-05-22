@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class accountMapper {
+public class AccountMapper {
 
     public AccountResponse convertFrom(Account account) {
         AccountResponse accountResponse = new AccountResponse();

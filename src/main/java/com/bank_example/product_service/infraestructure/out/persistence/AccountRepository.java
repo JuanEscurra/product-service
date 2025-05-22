@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface SavingAccountRepository extends ReactiveMongoRepository<Account, String> {
+public interface AccountRepository extends ReactiveMongoRepository<Account, String> {
     
     Mono<Long> countSavingAccountByAccountTypeAndClientId(AccountType typem, String clientId);
 }
