@@ -1,7 +1,7 @@
 package com.bank_example.product_service.infraestructure.out.http;
 
 import com.bank_example.product_service.application.ports.out.http.ClientFinderPort;
-import com.bank_example.product_service.application.ports.out.http.request.Client;
+import com.bank_example.product_service.domain.models.client.Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ public class ClientFinderAdapter implements ClientFinderPort {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new Exception("Client not found")))
-                .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Server error")))
+                .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Client service could not respond to the request")))
                 .bodyToMono(Client.class);
     }
 }

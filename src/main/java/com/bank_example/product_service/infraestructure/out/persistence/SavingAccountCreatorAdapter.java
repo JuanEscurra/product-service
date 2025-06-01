@@ -4,7 +4,6 @@ import com.bank_example.product_service.application.ports.out.persistence.Accoun
 import com.bank_example.product_service.domain.generate.model.AccountResponse;
 import com.bank_example.product_service.domain.generate.model.CreateFixedTermDepositRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -19,22 +18,12 @@ public class SavingAccountCreatorAdapter implements AccountCreatorPort {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
-    @Value("${bank-example.business.rules.saving-accounts.maintenceFee}")
-    private BigDecimal savingAccountMaintenanceFee;
-
-    @Value("${bank-example.business.rules.current-account.maintenceFee}")
-    private BigDecimal currentAccountMaintenanceFee;
-
-    @Value("${bank-example.business.rules.fixed-term-deposit.interest-rate}")
-    private BigDecimal interestRate;
-
 
     @Override
     public Mono<AccountResponse> createSavingAccount(String clientId) {
         Account account = this.createAccountInit(clientId);
         account.setAccountType(AccountType.SAVING_ACCOUNT);
         account.setBalance(BigDecimal.ZERO);
-        account.setMaintenceFee(savingAccountMaintenanceFee);
 
         return this.accountRepository.save(account)
                 .map(this.accountMapper::convertFrom);
@@ -44,9 +33,7 @@ public class SavingAccountCreatorAdapter implements AccountCreatorPort {
     public Mono<AccountResponse> createCurrentAccount(String clientId) {
         Account account = this.createAccountInit( clientId );
         account.setAccountType(AccountType.CURRENT_ACCOUNT);
-
         account.setBalance(BigDecimal.ZERO);
-        account.setMaintenceFee(currentAccountMaintenanceFee);
 
         return this.accountRepository.save(account)
                 .map(this.accountMapper::convertFrom);
@@ -56,12 +43,9 @@ public class SavingAccountCreatorAdapter implements AccountCreatorPort {
     public Mono<AccountResponse> createFixedTermDeposit(CreateFixedTermDepositRequest request) {
         Account account = this.createAccountInit(request.getClientId());
         account.setAccountType(AccountType.FIXED_TERM_DEPOSIT);
-
         account.setBalance( BigDecimal.valueOf(request.getBalance()) );
         account.setMaintenceFee(BigDecimal.ZERO);
-
         account.setMaturityDate(request.getMaturityDate());
-        account.setInterestRate(interestRate);
 
         return this.accountRepository.save(account)
                 .map(this.accountMapper::convertFrom);
