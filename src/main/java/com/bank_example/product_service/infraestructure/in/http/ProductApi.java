@@ -64,8 +64,7 @@ public class ProductApi implements
 
     @Override
     public Mono<ResponseEntity<AccountResponse>> getProductById(String id, ServerWebExchange exchange) {
-//        this.getProductByIdUseCase.getProductById(id)
-//                .flatMap();
-        return ProductsApiDelegate.super.getProductById(id, exchange);
+        return this.getProductByIdUseCase.getProductById(id)
+                .map(accountResponse -> ResponseEntity.status(HttpStatus.OK).body(accountResponse));
     }
 }
