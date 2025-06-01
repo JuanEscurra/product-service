@@ -43,6 +43,9 @@ public class CreateFixedTermDepositUseCaseImpl implements CreateFixedTermDeposit
                 return Mono.error(new Exception("Enabled for personal user"));
             if( productRule.getMaxAllowed() != -1 && countFixedTermDeposits >= productRule.getMaxAllowed() )
                 return Mono.error(new Exception("Count fixed term deposits exceeded"));
+            if( productRule.getMinimumOpeningAmount().doubleValue() > request.getBalance() )
+                return Mono.error(new Exception("Does not exceed the minimum amount for opening the account"));
+
 
             return this.accountCreatorPort.createFixedTermDeposit(request);
         })
