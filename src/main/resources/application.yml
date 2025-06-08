@@ -2,30 +2,4 @@ spring:
   application:
     name: product-service
   profiles:
-    default: default
-  cloud:
-    config:
-      uri: http://localhost:8888
-      fail-fast: true
-  config:
-    import: "configserver:"
-bank-example:
-  business:
-    rules:
-      saving-accounts:
-        max: 1
-        maintenceFee: 0.00
-      current-account:
-        max: 1
-        maintenceFee: 50.00
-      fixed-term-deposit:
-        max: 1
-        interest-rate: 2.50
-server:
-  port: 0
-eureka:
-  instance:
-    instance-id: ${spring.application.name}:${random.uuid}
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+    default: dev
