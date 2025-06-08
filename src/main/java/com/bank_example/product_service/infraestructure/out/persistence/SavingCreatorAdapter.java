@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class SavingAccountCreatorAdapter implements AccountCreatorPort {
+public class SavingCreatorAdapter implements AccountCreatorPort {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;

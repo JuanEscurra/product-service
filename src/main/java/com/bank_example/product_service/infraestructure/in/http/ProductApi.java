@@ -1,14 +1,8 @@
 package com.bank_example.product_service.infraestructure.in.http;
 
 import com.bank_example.product_service.domain.generate.model.*;
-import com.bank_example.product_service.domain.usecases.CreateCurrentAccountUseCase;
-import com.bank_example.product_service.domain.usecases.CreateFixedTermDepositUseCase;
-import com.bank_example.product_service.domain.usecases.CreateSavingAccountUseCase;
-import com.bank_example.product_service.domain.usecases.GetProductByIdUseCase;
-import com.bank_example.product_service.infraestructure.in.api.CurrentAccountsApiDelegate;
-import com.bank_example.product_service.infraestructure.in.api.FixedTermDepositsApiDelegate;
+import com.bank_example.product_service.domain.usecases.*;
 import com.bank_example.product_service.infraestructure.in.api.ProductsApiDelegate;
-import com.bank_example.product_service.infraestructure.in.api.SavingAccountsApiDelegate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,21 +16,13 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ProductApi implements
-        SavingAccountsApiDelegate,
-        CurrentAccountsApiDelegate,
-        FixedTermDepositsApiDelegate,
-        ProductsApiDelegate {
+public class ProductApi implements ProductsApiDelegate {
 
     private final CreateSavingAccountUseCase createSavingAccountUseCase;
     private final CreateCurrentAccountUseCase createCurrentAccountUseCase;
     private final CreateFixedTermDepositUseCase createFixedTermDepositUseCase;
     private final GetProductByIdUseCase getProductByIdUseCase;
-
-    @Override
-    public Optional<NativeWebRequest> getRequest() {
-        return SavingAccountsApiDelegate.super.getRequest();
-    }
+    private final TransferMoneyUseCase  transferMoneyUseCase;
 
     @Override
     public Mono<ResponseEntity<AccountResponse>> createSavingAccount(Mono<CreateSavingAccountRequest> createSavingAccountRequest, ServerWebExchange exchange) {
@@ -66,5 +52,13 @@ public class ProductApi implements
     public Mono<ResponseEntity<AccountResponse>> getProductById(String id, ServerWebExchange exchange) {
         return this.getProductByIdUseCase.getProductById(id)
                 .map(accountResponse -> ResponseEntity.status(HttpStatus.OK).body(accountResponse));
+    }
+
+
+    @Override
+    public Mono<ResponseEntity<Void>> transferMoney(Mono<TransferMoneyRequest> transferMoneyRequest, ServerWebExchange exchange) {
+        return transferMoneyRequest
+                .flatMap(this.transferMoneyUseCase::transferMoney)
+                .then(Mono.fromCallable(() -> ResponseEntity.noContent().build()));
     }
 }

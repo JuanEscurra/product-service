@@ -4,11 +4,17 @@ info:
   title: Banking Products API
 servers:
   - url: http://localhost:8585
+tags:
+  - name: Consultar
+  - name: Crear
+  - name: Transferir
 paths:
   /products/{id}:
     get:
       summary: Obtener los datos de un producto por id
       operationId: getProductById
+      tags:
+        - Consultar
       parameters:
         - name: id
           in: path
@@ -25,9 +31,11 @@ paths:
                 $ref: "#/components/schemas/AccountResponse"
         '404':
           description: Producto no encontrado
-  /saving-accounts:
+  /products/saving-accounts:
     post:
       summary: Crea una cuenta de ahorro
+      tags:
+        - Crear
       operationId: createSavingAccount
       requestBody:
         required: true
@@ -42,9 +50,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccountResponse"
-  /current-accounts:
+  /products/current-accounts:
     post:
       summary: Crea una cuenta de corriente
+      tags:
+        - Crear
       operationId: createCurrentAccount
       requestBody:
         required: true
@@ -59,9 +69,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccountResponse"
-  /fixed-term-deposits:
+  /products/fixed-term-deposits:
     post:
-      summary: Crea plazo fijo
+      summary: Crea un plazo fijo
+      tags:
+        - Crear
       operationId: createFixedTermDeposit
       requestBody:
         required: true
@@ -76,8 +88,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccountResponse"
+  /products/transfer-money:
+    post:
+      summary: Transferir dinero desde un producto a otro
+      tags:
+        - Transferir
+      operationId: transferMoney
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferMoneyRequest"
+      responses:
+        '204':
+          description: Se ha realizado la transferencia correctamente
+        '400':
+          description: Error de validación o parámetros incorrectos enviados por el cliente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor. Ha ocurrido un problema inesperado en el microservicio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Descripción del error generado
+        status:
+          type: string
+          description: Clasificación del error
+          example: BAD_REQUEST
+      required:
+        - message
+        - status
     CreateSavingAccountRequest:
       type: object
       required:
@@ -105,6 +157,7 @@ components:
           type: number
           format: double
           multipleOf: 0.01
+          minimum: 500
         maturityDate:
           type: string
           format: date
@@ -154,3 +207,21 @@ components:
           multipleOf: 0.01
         currentWithdrawalCount:
           type: integer
+    TransferMoneyRequest:
+      type: object
+      required:
+        - amount
+        - productOriginId
+        - productDestinationId
+      properties:
+        amount:
+          type: number
+          format: double
+          multipleOf: 0.01
+          description: Monto a transferir, con hasta dos decimales (por ejemplo, 100.50).
+        productOriginId:
+          type: string
+          description: Identificador del producto bancario de origen.
+        productDestinationId:
+          type: string
+          description: Identificador del producto bancario de destino.
